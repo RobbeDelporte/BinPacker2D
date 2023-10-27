@@ -1,5 +1,5 @@
 from consts import BIN_WIDTH, BIN_HEIGHT
-
+import numpy as np
 
 class Spaces():
     def __init__(self):
@@ -26,6 +26,19 @@ class Spaces():
             self.free_spaces.append(space2)
 
         return space.x, space.y, space.layer
+    
+
+    def add_space(self,new_space):
+        if not space.is_valid():
+            return False
+        
+        #check for merge possibilities
+        for space_idx, space in enumerate(self.free_spaces):
+            if np.intersect1d(space.corners, new_space.corners).size == 2:
+                free_space.w = max(free_space.w, space.w)
+                free_space.h = max(free_space.h, space.h)
+                return True
+
     
     def get_space_split(self,w,h,space_index):
         space = self.free_spaces[space_index]
@@ -59,9 +72,12 @@ class FreeSpace():
         self.w = w
         self.h = h
         self.layer = layer
+        self.corners = [(x,y),(x+w,y),(x,y+h),(x+w,y+h)]
 
     def __repr__(self):
         return "({}, {}, {}, {}, layer: {})".format(self.x,self.y,self.w,self.h,self.layer)
     
     def is_valid(self):
         return self.w > 0 and self.h > 0
+    
+

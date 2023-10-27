@@ -72,11 +72,15 @@ class Packer():
         h = shapes[:,1]
         spaces = self.spaces.free_spaces
         scores = np.zeros((len(spaces),len(shapes)))
+
         for i, space in enumerate(spaces):
+
             fit = np.array((space.w >= w) & (space.h >= h),dtype=bool)
             enough_items = shapes[:,2] <= self.item_quantities[shapes[:,3]]
-            wasted_space = np.abs(space.w * space.h - w * h)
-            scores[i] = (1 / (wasted_space+1e-6)) * fit * enough_items
+
+            fill_rate = (w * h) / (space.w * space.h)
+
+            scores[i] = fill_rate * fit * enough_items
 
         max_score = np.max(scores)
 

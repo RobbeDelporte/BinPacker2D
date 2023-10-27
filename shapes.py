@@ -16,8 +16,6 @@ class Shapes():
             _, product_id, quantity, w, h = product
 
             for n in range(1,quantity+1):
-                if sp.isprime(n) and n > 2:
-                    continue
                 for i in range(1,n+1):
                     if n%i != 0:
                         continue
