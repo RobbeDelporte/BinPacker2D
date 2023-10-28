@@ -24,6 +24,19 @@ class Spaces():
 
         return space.x, space.y, space.layer
     
+
+    def add_space(self,new_space):
+        if not space.is_valid():
+            return False
+        
+        #check for merge possibilities
+        for space_idx, space in enumerate(self.free_spaces):
+            if np.intersect1d(space.corners, new_space.corners).size == 2:
+                free_space.w = max(free_space.w, space.w)
+                free_space.h = max(free_space.h, space.h)
+                return True
+
+    
     def get_space_split(self,w,h,space_index):
         #to be used in speculative execution
         space = self.free_spaces[space_index]
@@ -94,3 +107,5 @@ class FreeSpace():
     
     def is_valid(self):
         return self.w > 0 and self.h > 0
+    
+

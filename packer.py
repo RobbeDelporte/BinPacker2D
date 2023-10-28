@@ -52,6 +52,7 @@ class Packer():
             # calculate score for each shape in a vectorized manner
 
             # bool vector: true if shape fits in space
+
             fit = np.array((space.w >= w) & (space.h >= h),dtype=bool)
 
             # bool vector: true if enough items are left to make shape
@@ -68,7 +69,9 @@ class Packer():
             space2_wasted = self.shapes.min_fits[np.clip(space2_w,0,BIN_WIDTH-1)] > space2_h  
             # int vector: wasted space area
             wasted_area = np.array(space1_wasted * (space1_w * space1_h) + space2_wasted * (space2_w * space2_h),dtype=int)
-            scores[i] = (1/(wasted_area+1e-6)) * fit * enough_items
+            fill_rate = (w * h) / (space.w * space.h)
+
+            scores[i] = fill_rate * fit * enough_items
 
         max_score = np.max(scores)
 
