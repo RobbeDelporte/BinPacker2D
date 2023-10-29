@@ -21,6 +21,7 @@ class Packer():
         self.item_areas = self.item_shapes[:,0] * self.item_shapes[:,1]
         
         liquid_filling = np.ceil((order["Quantity"] * order["L"] * order["W"]).sum() / (100*120)).astype(int)
+
         self.spaces = Spaces(n_layers=liquid_filling)
         self.packed_items = PackedItems()
         self.shapes = Shapes(order)
@@ -51,28 +52,37 @@ class Packer():
         for i, space in enumerate(spaces):
             # calculate score for each shape in a vectorized manner
 
-            # bool vector: true if shape fits in space
-
             fit = np.array((space.w >= w) & (space.h >= h),dtype=bool)
 
-            # bool vector: true if enough items are left to make shape
             enough_items = shapes[:,2] <= self.item_quantities[shapes[:,3]]
 
-            # [0,1] vector: fill rate of space by shape
-            fill_rate = np.array((w * h) / (space.w * space.h),dtype=np.float16)
+            # space1_w = shape_width - x; space1_h = shape_height; space2_w = x; space2_h = shape_height - y
 
-            # Calculating wasted space, space that can never be filled (unless maybe with a good space merge)
-            # resulting w,h of spaces after space split
-            space1_w = space.w - w; space1_h = space.h; space2_w = w; space2_h = space.h - h
-            # bool vector: true if no shape exists that fits in space
-            space1_wasted = self.shapes.min_fits[np.clip(space1_w,0,BIN_WIDTH-1)] > space1_h
-            space2_wasted = self.shapes.min_fits[np.clip(space2_w,0,BIN_WIDTH-1)] > space2_h  
-            # int vector: wasted space area
-            wasted_area = np.array(space1_wasted * (space1_w * space1_h) + space2_wasted * (space2_w * space2_h),dtype=int)
-            fill_rate = (w * h) / (space.w * space.h)
+            # get min dimensions of available shapes
+            remaining_shapes = shapes[enough_items]
+            min_width = np.min(remaining_shapes[:,0])
+            min_height = np.min(remaining_shapes[:,1])
 
-            scores[i] = fill_rate * fit * enough_items
+            # cutoff point, point where no shape can fit
+            width_cutoff = space.w - min_width
+            height_cutoff = space.h - min_height
 
+            # pre-cutoff score (fill rate)
+            score1_w = (w / space.w) * (w <= width_cutoff)
+            score1_h = (h / space.h) * (h <= height_cutoff)
+
+            # post-cutoff score (linear)
+            score2_w = (((w - width_cutoff) / (space.w - width_cutoff))) * (w > width_cutoff)
+            score2_h = (((h - height_cutoff) / (space.h - height_cutoff))) * (h > height_cutoff)
+
+            # add score functions (only one of score1_w and score2_w will be non-zero)
+            width_score = score1_w + score2_w
+            height_score = score1_h + score2_h
+
+            # combined score (multiply width and height scores) + mask out invalid shapes
+            scores[i] = (width_score * height_score) * fit * enough_items
+
+        # find max score
         max_score = np.max(scores)
 
         # no possible fit, add new layer then recursion
@@ -80,9 +90,9 @@ class Packer():
             self.spaces.add_new_layer()
             return self.find_space_shape()
         
-        found_space, found_shape = np.argwhere(scores == np.max(scores))[-1]
+        found_space, found_shape = np.argwhere(scores == max_score)[-1]
 
-        print(max_score, spaces[found_space], shapes[found_shape])
+        # print(max_score, spaces[found_space], shapes[found_shape])
     
         return found_space, found_shape
     
