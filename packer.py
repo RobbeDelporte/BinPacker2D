@@ -140,7 +140,7 @@ class PackedItems():
         self.layers = {}
 
     def add_shape(self,shape,x,y,layer):
-        print(f"packing {shape} at {x},{y} in layer {layer}")
+        # print(f"packing {shape} at {x},{y} in layer {layer}")
         if layer not in self.layers:
             self.layers[layer] = []
         self.layers[layer].append([x,y,shape.w,shape.h,shape.q,shape.id])

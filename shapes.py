@@ -30,10 +30,10 @@ class Shapes():
                         continue
                     j = n//i
 
-                    if i*w <= BIN_WIDTH or j*h <= BIN_HEIGHT:
+                    if i*w <= BIN_WIDTH and j*h <= BIN_HEIGHT:
                         shapes_array.append([i*w, j*h, n, product_id])
-                    if i*h <= BIN_WIDTH or j*w <= BIN_HEIGHT:
-                        shapes_array.append([j*h, i*w, n, product_id])
+                    if i*h <= BIN_WIDTH and j*w <= BIN_HEIGHT:
+                        shapes_array.append([i*h, j*w, n, product_id])
 
         self.shapes_array = np.array(shapes_array)
 
