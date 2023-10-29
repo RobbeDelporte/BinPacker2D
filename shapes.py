@@ -32,23 +32,23 @@ class Shapes():
 
                     if i*w <= BIN_WIDTH and j*h <= BIN_HEIGHT:
                         shapes_array.append([i*w, j*h, n, product_id])
+                        self.shapes.append(Shape(i*w, j*h, n, product_id, w, h))
                     if i*h <= BIN_WIDTH and j*w <= BIN_HEIGHT:
                         shapes_array.append([i*h, j*w, n, product_id])
+                        self.shapes.append(Shape(i*h, j*w, n, product_id, h, w))
 
         self.shapes_array = np.array(shapes_array)
-
-        for shape in self.shapes_array:
-            self.shapes.append(Shape(*shape))
-
 
 
 
 class Shape():
-    def __init__(self,w,h,q,id):
+    def __init__(self,w,h,q,item_id,item_width,item_height):
         self.w = w
         self.h = h
         self.q = q
-        self.id = id
+        self.item_id = item_id
+        self.item_width = item_width
+        self.item_height = item_height
 
     def __repr__(self):
-        return "({}, {}, {}, {})".format(self.w,self.h,self.q,self.id)
+        return "({}, {}, {}, {})".format(self.w,self.h,self.q,self.item_id)

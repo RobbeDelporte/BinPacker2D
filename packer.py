@@ -95,7 +95,7 @@ class Packer():
         shape = self.shapes.shapes[shape_idx]
         x,y,layer = self.open_spaces.split_space(shape,space_idx)
         self.packed_items.add_shape(shape,x,y,layer)
-        self.item_quantities[shape.id] -= shape.q
+        self.item_quantities[shape.item_id] -= shape.q
         self.total_number_of_items -= shape.q
 
 
@@ -103,19 +103,30 @@ class Packer():
         for layer_index, layer in self.packed_items.layers.items():
             fig = plt.figure()
             ax = fig.add_subplot(111, aspect='equal')
-            for x,y,w,h,q,id in layer:
+            for x,y,shape in layer:
                 plt.axis([0,BIN_WIDTH,0,BIN_HEIGHT])
+                width_q = shape.w / shape.item_width
+                for i in range(shape.q):
+                    ax.add_patch(
+                        Rectangle(
+                            (x + shape.item_width * (i % width_q), y + shape.item_height * (i // width_q)),  # (x,y)
+                            shape.item_width,          # width
+                            shape.item_height,          # height
+                            facecolor=self.colors[shape.item_id],
+                            edgecolor="black",
+                            linewidth=1
+                        )
+                    )
                 ax.add_patch(
                     Rectangle(
                         (x, y),  # (x,y)
-                        w,          # width
-                        h,          # height
-                        facecolor=self.colors[id],
-                        edgecolor="black",
-                        linewidth=3
+                        shape.w,          # width
+                        shape.h,          # height
+                        fill = False,
+                        linewidth=3,
                     )
                 )
-                ax.text(x+w/2, y+h/2, f"{id}: {q}", ha='center', va='center', fontsize=20)
+                ax.text(x+shape.w/2, y+shape.h/2, f"{shape.item_id}", ha='center', va='center', fontsize=20)
 
             for space in self.open_spaces.open_spaces:
                 if space.layer == layer_index:
@@ -143,7 +154,7 @@ class PackedItems():
         # print(f"packing {shape} at {x},{y} in layer {layer}")
         if layer not in self.layers:
             self.layers[layer] = []
-        self.layers[layer].append([x,y,shape.w,shape.h,shape.q,shape.id])
+        self.layers[layer].append([x,y,shape])
 
 
 
