@@ -84,7 +84,7 @@
 - Fix dimension dependance in score function
 
 
-    Is only nececerry with non-overlapping open-spaces I think
+    Is only necessary with non-overlapping open-spaces I think
 
     Right now score function is calcultated independently for width and height and then multiplied. This is correct when both dimensions are small enough, but could lead to inefficiencies when one or both dimensions are big enough to introduce wasted space
 
