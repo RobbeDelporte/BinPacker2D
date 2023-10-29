@@ -71,9 +71,9 @@
 
     Does not seem to help, even harms performance -> removed.
     Tried polynomial with different exponents.
-    Hypothesis: any superlinear funcion harms performance
 
-    Could change with overlapping open-spaces
+    Hypothesis: any superlinear funcion harms performance.
+    Could change with overlapping open-spaces.
 
 
 - Non linear score function
@@ -82,7 +82,6 @@
 
 
 - Fix dimension dependance in score function
-
 
     Is only nececerry with non-overlapping open-spaces I think
 
