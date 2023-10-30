@@ -6,9 +6,11 @@
 
     Duh...
 
-- Add overlapping open-spaces
+- ~~Add overlapping open-spaces~~
 
     Current implementation splits the open-space into 2 non-overlapping parts
+
+    BIIIG improvement
 
 - ~~Add open-space merging~~
 
@@ -83,14 +85,13 @@
     In the fill rate regime
 
 
-- Fix dimension dependance in score function
+- ~~Fix dimension dependance in score function~~
 
     Is only nececerry with non-overlapping open-spaces I think
 
     Right now score function is calcultated independently for width and height and then multiplied. This is correct when both dimensions are small enough, but could lead to inefficiencies when one or both dimensions are big enough to introduce wasted space
 
-    Actually probably only one edge case where this dependance occurs, and only in non-overlapping open-spaces
-
+    Actually probably only one edge case where this dependance occurs, and only in non-overlapping open-spaces -> ignored
 
 
 - ~~Fix min dimension calculation~~
@@ -108,6 +109,28 @@
 
 - ~~Visualise individual item boundries in shapes~~
 
-- ~~Fix: shapes that dont fit in layer, should be made.~~
+- ~~Fix: shapes that dont fit in layer, shoulndt be made.~~
+
+
+### problems/inefficiencies with no idea how to fix
+
+
+
+- Wasted space introduced by running out of items.
+
+    ![Wasted space introduced by running out of items](/images/ScoreFunction1D.png "Ineffiently filled layer")
+
+    In this layer item 2 got packed because the opens-space to its right is easily filled by item 22. The problem is that only one such item is present. One item is enough to have its width taken as minimum width for the score calculation, but not eough to actually fill the space.
+
+
+- Biggest limitation of current solution.
+
+    ![Current limitation: layer 1](/images/CurrentLimit_1.png "Layer 1")
+
+    ![Current limitation: layer 2](/images/CurrentLimit_2.png "Layer 2")
+
+    Item 12 could have been packed into layer 1 if item 20 was packed at the right of its open space.
+
+    There needs to be some way to either allow this AND quantify the amount of fragmentation the item placement introduces in other spaces and integrate this into the score function
 
 

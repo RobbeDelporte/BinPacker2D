@@ -35,6 +35,7 @@ class Packer():
             #pack the shape into the space
             self.pack_shape(shape_idx,space_idx)
 
+
     def find_space_shape(self):
         shapes = self.shapes.shapes_array
         w = shapes[:,0]
