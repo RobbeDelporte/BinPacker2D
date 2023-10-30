@@ -103,8 +103,8 @@ class OpenSpaces():
             # space has overlap with shape, needs to be split
             space1 = OpenSpace(space.x,space.y,x_overlap-space.x,space.h,space.layer)
             space2 = OpenSpace(space.x,space.y,space.w,y_overlap-space.y,space.layer)
-            space3 = OpenSpace(space.x,y_overlap+h_overlap,space.w,space.h-y_overlap-h_overlap,space.layer)
-            space4 = OpenSpace(x_overlap+w_overlap,space.y,space.w-x_overlap-w_overlap,space.h,space.layer)
+            space3 = OpenSpace(space.x,y_overlap+h_overlap,space.w,(space.y+space.h)-(y_overlap+h_overlap),space.layer)
+            space4 = OpenSpace(x_overlap+w_overlap,space.y,(space.x+space.w)-(x_overlap+w_overlap),space.h,space.layer)
 
             new_spaces.append(space1)
             new_spaces.append(space2)
@@ -127,6 +127,28 @@ class OpenSpaces():
     def add_space(self,new_space):
         if not new_space.is_valid():
             return False
+        
+        for idx, space in enumerate(self.open_spaces):
+            if space.layer != new_space.layer:
+                continue
+            
+            x_overlap = max(new_space.x,space.x)
+            y_overlap = max(new_space.y,space.y)
+            w_overlap = min(new_space.x+new_space.w,space.x+space.w) - x_overlap
+            h_overlap = min(new_space.y+new_space.h,space.y+space.h) - y_overlap
+
+            if w_overlap <= 0 or h_overlap <= 0:
+                continue
+
+            # if space is contained in new space, we can remove it
+            if w_overlap == space.w and h_overlap == space.h:
+                self.open_spaces.pop(idx)
+                continue
+
+            # if new space is contained in another space, we can safely return
+            if w_overlap == new_space.w and h_overlap == new_space.h:
+                return False
+                
         self.open_spaces.append(new_space)
         return True
     

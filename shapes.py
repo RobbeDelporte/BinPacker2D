@@ -9,15 +9,6 @@ class Shapes():
 
         self.generate_shapes(order)
 
-        self.min_fits = np.zeros(BIN_WIDTH)
-        self.min_fits.fill(BIN_HEIGHT+1)
-        for i in range(BIN_WIDTH):
-            idx = np.where(self.shapes_array[:,0] <= i)[0]
-            if len(idx) == 0:
-                continue
-            self.min_fits[i] = np.min(self.shapes_array[idx,1])
-    
-
     def generate_shapes(self,order):
 
         shapes_array = []

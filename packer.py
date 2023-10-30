@@ -20,7 +20,7 @@ class Packer():
         
         self.liquid_filling = np.ceil((order["Quantity"] * order["L"] * order["W"]).sum() / (100*120)).astype(int)
 
-        self.open_spaces = Spaces(n_layers=1)
+        self.open_spaces = OpenSpaces(n_layers=1)
         self.packed_items = PackedItems()
         self.shapes = Shapes(order)
 
@@ -34,7 +34,6 @@ class Packer():
 
             #pack the shape into the space
             self.pack_shape(shape_idx,space_idx)
-
 
     def find_space_shape(self):
         shapes = self.shapes.shapes_array
@@ -157,7 +156,7 @@ class Packer():
                             facecolor="white",
                             edgecolor="black",
                             fill = False,
-                            linewidth=3
+                            linewidth=1
                         )
                     )
                     ax.text(space.x+space.w/2, space.y+space.h/2, f"S", ha='center', va='center', fontsize=20)   
