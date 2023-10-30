@@ -23,9 +23,11 @@
 
     Spaces that are contained by another space can also be removed
 
-- Add shape reservation.
+- ~~Add shape reservation~~.
 
-    When adding an item with the anticipation that another item can fill the gap, reserve that item so tha algorithm cant use that item to create and equally size gap again. Rn algorithm adds multiple superitems with the right leftover space that fits a smaller item, but does this more times then there are small items to fill the leftover spaces thus leading to wasted space.
+    When adding an item with the anticipation that another item can fill the gap, reserve that item so tha algorithm cant use that item to create and equally size gap again. Rn algorithm adds multiple superitems with the right leftover space that fits a smaller item, but does this more times then there are small items to fill the leftover spaces thus leading to wasted space.\
+
+    Solved: Problem only occured when initialising the number of layers to liquid minumum. This does not really happen when initialising at 1
 
 
 - Product merging
@@ -91,11 +93,13 @@
 
 
 
-- Fix min dimension calculation
+- ~~Fix min dimension calculation~~
 
     Right now this is the min width/height of all still available shapes. Should also take into account that height/witdh of space might limit item choice.
 
-    Calculation does take into account if items are not available anymore, but introduce shape reservation here (See *Add shape reservation*)
+    Calculation does take into account if items are not available anymore.
+
+    Calc now takes into account item availability and second dimention. Applied valid mask before calculating min
 
 
 

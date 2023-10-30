@@ -16,13 +16,11 @@ class Packer():
         self.item_quantities = np.array(order["Quantity"])
         self.colors = [colorsys.hsv_to_rgb(x*1.0/N, 1, 1) for x in range(N)]
 
-
         self.total_number_of_items = np.sum(self.item_quantities)
         
-        liquid_filling = np.ceil((order["Quantity"] * order["L"] * order["W"]).sum() / (100*120)).astype(int)
+        self.liquid_filling = np.ceil((order["Quantity"] * order["L"] * order["W"]).sum() / (100*120)).astype(int)
 
-        # we will at least need liquid_filling layers, initialize a free space for all of them for more packing possibilities
-        self.open_spaces = Spaces(n_layers=liquid_filling)
+        self.open_spaces = Spaces(n_layers=1)
         self.packed_items = PackedItems()
         self.shapes = Shapes(order)
 
@@ -43,6 +41,12 @@ class Packer():
         w = shapes[:,0]
         h = shapes[:,1]
         spaces = self.open_spaces.open_spaces
+
+        # no open spaces, add new layer then recursion
+        if len(spaces) == 0:
+            self.open_spaces.add_new_layer()
+            spaces = self.open_spaces.open_spaces
+
         
         # scores for each space, shape pair
         scores = np.zeros((len(spaces),len(shapes)))
@@ -57,8 +61,13 @@ class Packer():
             # mask to check if there are enough items left to make shape
             enough_items = shapes[:,2] <= self.item_quantities[shapes[:,3]]
 
+            # mask to check if there are any shapes that fit and have enough items, if there are none, skip this space
+            valid = fit & enough_items
+            if not np.any(valid):
+                continue
+
             # get min dimensions of available shapes
-            remaining_shapes = shapes[enough_items]
+            remaining_shapes = shapes[valid]
             min_width = np.min(remaining_shapes[:,0])
             min_height = np.min(remaining_shapes[:,1])
 
@@ -84,7 +93,7 @@ class Packer():
             height_score = score1_h + score2_h
 
             # combined score (multiply width and height scores) + mask out invalid shapes
-            scores[i] = (width_score * height_score) * fit * enough_items
+            scores[i] = (width_score * height_score) * valid
 
         # find max score
         max_score = np.max(scores)
@@ -147,6 +156,7 @@ class Packer():
                             space.h,          # height
                             facecolor="white",
                             edgecolor="black",
+                            fill = False,
                             linewidth=3
                         )
                     )
