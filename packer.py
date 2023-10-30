@@ -76,9 +76,9 @@ class Packer():
             # score2_w = 1/(min_width**p) * (w - width_cutoff)**p * (w > width_cutoff)
             # score2_h = 1/(min_height**p) * (h - height_cutoff)**p * (h > height_cutoff)
 
-            a = 0
-            score2_w = ((1 - a*width_cutoff/space.w)/min_width * w + (width_cutoff * (a - 1))/min_width) * (w > width_cutoff)
-            score2_h = ((1 - a*height_cutoff/space.h)/min_height * h + (height_cutoff * (a - 1))/min_height) * (h > height_cutoff)
+            # a = 0
+            # score2_w = ((1 - a*width_cutoff/space.w)/min_width * w + (width_cutoff * (a - 1))/min_width) * (w > width_cutoff)
+            # score2_h = ((1 - a*height_cutoff/space.h)/min_height * h + (height_cutoff * (a - 1))/min_height) * (h > height_cutoff)
 
             width_score = score1_w + score2_w
             height_score = score1_h + score2_h
