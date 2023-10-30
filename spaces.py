@@ -115,6 +115,8 @@ class OpenSpaces():
 
     
 class OpenSpace():
+    __slots__ = ['x','y','w','h','layer','corners']
+
     def __init__(self, x, y, w, h, layer):
         self.x = x
         self.y = y

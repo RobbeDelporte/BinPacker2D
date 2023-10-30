@@ -102,7 +102,7 @@
 ### Small improvements
 
 
-- Visualise individual item boundries in shapes
+- ~~Visualise individual item boundries in shapes~~
 
 - ~~Fix: shapes that dont fit in layer, should be made.~~
 

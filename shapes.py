@@ -42,6 +42,8 @@ class Shapes():
 
 
 class Shape():
+    __slots__ = ['w', 'h', 'q', 'item_id', 'item_width', 'item_height']
+
     def __init__(self,w,h,q,item_id,item_width,item_height):
         self.w = w
         self.h = h
