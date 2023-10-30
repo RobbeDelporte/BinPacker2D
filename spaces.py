@@ -74,23 +74,35 @@ class OpenSpaces():
         self.width = BIN_WIDTH
         self.height = BIN_HEIGHT
 
-        self.free_spaces = [OpenSpace(0,0,self.width,self.height,i) for i in range(n_layers)]
+        self.open_spaces = [OpenSpace(0,0,self.width,self.height,i) for i in range(n_layers)]
         self.number_of_layers = n_layers
 
     def split_space(self,shape,space_index):
-        x,y,w,h = shape
+        selected_space = self.open_spaces.pop(space_index)
+        assert selected_space.w >= shape.w and selected_space.h >= shape.h
+
         new_spaces = []
-        selected_space = self.free_spaces.pop(space_index)
-        assert selected_space.w >= w and selected_space.h >= h
 
-        new_spaces.append(OpenSpace(selected_space.x+w, selected_space.y, selected_space.w-w,selected_space.h,selected_space.layer))
-        new_spaces.append(OpenSpace(selected_space.x, selected_space.y+h,selected_space.w,selected_space.h-h,selected_space.layer))
+        new_spaces.append(OpenSpace(selected_space.x+shape.w, selected_space.y, selected_space.w-shape.w,selected_space.h,selected_space.layer))
+        new_spaces.append(OpenSpace(selected_space.x, selected_space.y+shape.h,selected_space.w,selected_space.h-shape.h,selected_space.layer))
 
 
-        for space in self.free_spaces:
+        for space in self.open_spaces:
             if space.layer != selected_space.layer:
                 continue
-        
+
+            x_overlap = max(selected_space.x,space.x)
+            y_overlap = max(selected_space.y,space.y)
+            w_overlap = min(selected_space.x+shape.w,space.x+space.w) - x_overlap
+            h_overlap = min(selected_space.y+shape.h,space.y+space.h) - y_overlap
+
+
+
+            if w_overlap <= 0 or h_overlap <= 0:
+                continue
+
+            print(selected_space.x,selected_space.y,shape,space,x_overlap,y_overlap,w_overlap,h_overlap)
+
             
 
 
@@ -103,14 +115,14 @@ class OpenSpaces():
         new_space = OpenSpace(0,0,self.width,self.height,self.number_of_layers)
         self.number_of_layers += 1
 
-        self.free_spaces.append(new_space)
-        return len(self.free_spaces)
+        self.open_spaces.append(new_space)
+        return len(self.open_spaces)
 
     def add_space(self,new_space):
         if not new_space.is_valid():
             return False
         
-        self.free_spaces.append(new_space)
+        self.open_spaces.append(new_space)
         return True
 
     

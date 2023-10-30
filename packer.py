@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import colorsys
-from spaces import Spaces
+from spaces import Spaces, OpenSpaces
 from shapes import *
 from consts import BIN_WIDTH, BIN_HEIGHT
 
@@ -66,12 +66,22 @@ class Packer():
             width_cutoff = (space.w - min_width)
             height_cutoff = (space.h - min_height)
 
-            width_cutoff = width_cutoff * (w > width_cutoff)
-            height_cutoff = height_cutoff * (h > height_cutoff)
+            score1_w = (w / space.w) * (w <= width_cutoff)
+            score1_h = (h / space.h) * (h <= height_cutoff)
 
-            # score
-            width_score = (((w - width_cutoff) / (space.w - width_cutoff)))
-            height_score = (((h - height_cutoff) / (space.h - height_cutoff)))
+            score2_w = (((w - width_cutoff) / (space.w - width_cutoff))) * (w > width_cutoff)
+            score2_h = (((h - height_cutoff) / (space.h - height_cutoff))) * (h > height_cutoff)
+
+            # p = 4
+            # score2_w = 1/(min_width**p) * (w - width_cutoff)**p * (w > width_cutoff)
+            # score2_h = 1/(min_height**p) * (h - height_cutoff)**p * (h > height_cutoff)
+
+            a = 0
+            score2_w = ((1 - a*width_cutoff/space.w)/min_width * w + (width_cutoff * (a - 1))/min_width) * (w > width_cutoff)
+            score2_h = ((1 - a*height_cutoff/space.h)/min_height * h + (height_cutoff * (a - 1))/min_height) * (h > height_cutoff)
+
+            width_score = score1_w + score2_w
+            height_score = score1_h + score2_h
 
             # combined score (multiply width and height scores) + mask out invalid shapes
             scores[i] = (width_score * height_score) * fit * enough_items
@@ -79,7 +89,7 @@ class Packer():
         # find max score
         max_score = np.max(scores)
 
-        # no possible fit, add new layer then recursion
+        # no possible fit, add new layer then recursion, carefull here that 0 score actually means that there is no possible fit, and not a possible fit with a bad score
         if max_score == 0:
             self.open_spaces.add_new_layer()
             return self.find_space_shape()
