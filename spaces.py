@@ -86,9 +86,9 @@ class OpenSpaces():
         new_spaces.append(OpenSpace(selected_space.x+shape.w, selected_space.y, selected_space.w-shape.w,selected_space.h,selected_space.layer))
         new_spaces.append(OpenSpace(selected_space.x, selected_space.y+shape.h,selected_space.w,selected_space.h-shape.h,selected_space.layer))
 
-
         for space_idx, space in enumerate(self.open_spaces):
             if space.layer != selected_space.layer:
+                new_spaces.append(space)
                 continue
 
             x_overlap = max(selected_space.x,space.x)
@@ -98,6 +98,7 @@ class OpenSpaces():
 
             if w_overlap <= 0 or h_overlap <= 0:
                 new_spaces.append(space)
+                continue
 
             # space has overlap with shape, needs to be split
             space1 = OpenSpace(space.x,space.y,x_overlap-space.x,space.h,space.layer)
@@ -126,7 +127,6 @@ class OpenSpaces():
     def add_space(self,new_space):
         if not new_space.is_valid():
             return False
-        
         self.open_spaces.append(new_space)
         return True
     
