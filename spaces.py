@@ -83,6 +83,7 @@ class OpenSpaces():
         selected_space = self.open_spaces.pop(space_index)
         assert selected_space.w >= shape.w and selected_space.h >= shape.h
 
+        fragmentation_rate = 0
         new_spaces = []
 
         new_spaces.append(OpenSpace(selected_space.x+shape.w, selected_space.y, selected_space.w-shape.w,selected_space.h,selected_space.layer))
@@ -102,6 +103,8 @@ class OpenSpaces():
                 new_spaces.append(space)
                 continue
 
+            fragmentation_rate += (w_overlap*h_overlap)/(space.w*space.h)
+
             # space has overlap with shape, needs to be split
             space1 = OpenSpace(space.x,space.y,x_overlap-space.x,space.h,space.layer)
             space2 = OpenSpace(space.x,space.y,space.w,y_overlap-space.y,space.layer)
@@ -117,7 +120,7 @@ class OpenSpaces():
         for new_space in new_spaces:
             self.add_space(new_space)
 
-        return selected_space.x, selected_space.y, selected_space.layer 
+        return selected_space.x, selected_space.y, selected_space.layer , fragmentation_rate
 
     def add_space(self,new_space):
         if not new_space.is_valid():

@@ -112,10 +112,10 @@ class Packer():
         shape = self.shapes.shapes[shape_idx]
 
         # split the space and do other space managment
-        x,y,layer = self.spaces.split_space(shape,space_idx)
+        x,y,layer,fr = self.spaces.split_space(shape,space_idx)
 
         # add shape to packed items (only used to output result)
-        self.packed_items.add_shape(shape,x,y,layer)
+        self.packed_items.add_shape(shape,x,y,layer,fr)
 
         # update item quantities
         self.item_quantities[shape.item_id] -= shape.q

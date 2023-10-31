@@ -8,9 +8,10 @@ class Shapes():
         self.shapes = []
 
         self.generate_shapes(order)
+        self.generate_shapes_super(order)
 
     def generate_shapes(self,order):
-
+        assert np.all(order["L"] >= order["W"])
         shapes_array = []
         for _, product in order.iterrows():
             _, product_id, quantity, w, h = product
@@ -30,6 +31,12 @@ class Shapes():
 
         self.shapes_array = np.array(shapes_array)
 
+
+    def generate_shapes_super(self,order):
+        assert np.all(order["L"] >= order["W"])
+        all_dimensions = order[["L","W"]].to_numpy()
+        print(all_dimensions)
+        print(np.unique(all_dimensions,axis=0))
 
 
 class Shape():
