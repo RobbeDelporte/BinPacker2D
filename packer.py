@@ -34,6 +34,10 @@ class Packer():
             #pack the shape into the space
             self.pack_shape(shape_idx,space_idx)
 
+            min_width = np.min(self.shapes.shapes_array[:,0])
+            min_height = np.min(self.shapes.shapes_array[:,1])
+            self.spaces.filter_spaces(min_width,min_height)
+
 
     def find_space_shape(self):
         shapes = self.shapes.shapes_array
@@ -113,14 +117,13 @@ class Packer():
 
 
         corner_fragmentation = self.spaces.best_corner(shape,space_idx)
-        print(shape.item_id, shape.q, corner_fragmentation)
-
+        best_corner = np.argmin(corner_fragmentation)
+        # print(shape.item_id, shape.q,corner_fragmentation, best_corner)
         # split the space and do other space managment
-        x,y,layer = self.spaces.split_space(shape,space_idx)
-
+        x,y,layer = self.spaces.split_space(shape,space_idx,corner=best_corner)
 
         # add shape to packed items (only used to output result)
-        self.packed_items.add_shape(shape,x,y,layer,corner_fragmentation)
+        self.packed_items.add_shape(shape,x,y,layer)
 
         # update item quantities
         self.item_quantities[shape.item_id] -= shape.q
@@ -131,7 +134,7 @@ class Packer():
         for layer_index, layer in self.packed_items.layers.items():
             fig = plt.figure()
             ax = fig.add_subplot(111, aspect='equal')
-            for x,y,fr,shape in layer:
+            for x,y,shape in layer:
                 plt.axis([0,BIN_WIDTH,0,BIN_HEIGHT])
                 width_q = shape.w / shape.item_width
                 for i in range(shape.q):
@@ -179,11 +182,11 @@ class PackedItems():
     def __init__(self):
         self.layers = {}
 
-    def add_shape(self,shape,x,y,layer,fr):
+    def add_shape(self,shape,x,y,layer):
         # print(f"packing {shape} at {x},{y} in layer {layer}")
         if layer not in self.layers:
             self.layers[layer] = []
-        self.layers[layer].append([x,y,fr,shape])
+        self.layers[layer].append([x,y,shape])
 
 
 

@@ -8,7 +8,6 @@ class Shapes():
         self.shapes = []
 
         self.generate_shapes(order)
-        self.generate_shapes_super(order)
 
     def generate_shapes(self,order):
         assert np.all(order["L"] >= order["W"])

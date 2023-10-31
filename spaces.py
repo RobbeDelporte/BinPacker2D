@@ -115,7 +115,7 @@ class OpenSpaces():
 
 
     def split_space(self,shape,space_index,corner=0):
-        selected_space = self.open_spaces.pop(space_index)
+        selected_space = self.open_spaces[space_index]
         assert selected_space.w >= shape.w and selected_space.h >= shape.h
 
         corners_xy = [[selected_space.x,selected_space.y],
@@ -126,10 +126,6 @@ class OpenSpaces():
         x,y = corners_xy[corner]
 
         new_spaces = []
-
-        new_spaces.append(OpenSpace(selected_space.x+shape.w, selected_space.y, selected_space.w-shape.w,selected_space.h,selected_space.layer))
-        new_spaces.append(OpenSpace(selected_space.x, selected_space.y+shape.h,selected_space.w,selected_space.h-shape.h,selected_space.layer))
-
         for space_idx, space in enumerate(self.open_spaces):
             if space.layer != selected_space.layer:
                 new_spaces.append(space)
@@ -149,7 +145,7 @@ class OpenSpaces():
             space2 = OpenSpace(space.x,space.y,space.w,y_overlap-space.y,space.layer)
             space3 = OpenSpace(space.x,y_overlap+h_overlap,space.w,(space.y+space.h)-(y_overlap+h_overlap),space.layer)
             space4 = OpenSpace(x_overlap+w_overlap,space.y,(space.x+space.w)-(x_overlap+w_overlap),space.h,space.layer)
-
+            
             new_spaces.append(space1)
             new_spaces.append(space2)
             new_spaces.append(space3)
