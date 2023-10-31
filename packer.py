@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import colorsys
-from spaces import Spaces, OpenSpaces
-from shapes import *
-from consts import BIN_WIDTH, BIN_HEIGHT
+from spaces import SimpleSpaces, OpenSpaces
+from shapes import Shapes
+from consts import *
 
 class Packer():
 
@@ -20,7 +20,7 @@ class Packer():
         
         self.liquid_filling = np.ceil((order["Quantity"] * order["L"] * order["W"]).sum() / (100*120)).astype(int)
 
-        self.open_spaces = OpenSpaces(n_layers=1)
+        self.spaces = OpenSpaces(n_layers=1)
         self.packed_items = PackedItems()
         self.shapes = Shapes(order)
 
@@ -31,7 +31,6 @@ class Packer():
 
             #fine a space, shape pair with the highest score
             space_idx, shape_idx = self.find_space_shape()
-
             #pack the shape into the space
             self.pack_shape(shape_idx,space_idx)
 
@@ -40,12 +39,12 @@ class Packer():
         shapes = self.shapes.shapes_array
         w = shapes[:,0]
         h = shapes[:,1]
-        spaces = self.open_spaces.open_spaces
+        spaces = self.spaces.open_spaces
 
         # no open spaces, add new layer then recursion
         if len(spaces) == 0:
-            self.open_spaces.add_new_layer()
-            spaces = self.open_spaces.open_spaces
+            self.spaces.add_new_layer()
+            spaces = self.spaces.open_spaces
 
         
         # scores for each space, shape pair
@@ -57,7 +56,6 @@ class Packer():
 
             # mask to check if shape fits in space
             fit = np.array((space.w >= w) & (space.h >= h),dtype=bool)
-
             # mask to check if there are enough items left to make shape
             enough_items = shapes[:,2] <= self.item_quantities[shapes[:,3]]
 
@@ -100,7 +98,7 @@ class Packer():
 
         # no possible fit, add new layer then recursion, carefull here that 0 score actually means that there is no possible fit, and not a possible fit with a bad score
         if max_score == 0:
-            self.open_spaces.add_new_layer()
+            self.spaces.add_new_layer()
             return self.find_space_shape()
         
         found_space, found_shape = np.argwhere(scores == max_score)[-1]
@@ -112,8 +110,14 @@ class Packer():
 
     def pack_shape(self,shape_idx,space_idx):
         shape = self.shapes.shapes[shape_idx]
-        x,y,layer = self.open_spaces.split_space(shape,space_idx)
+
+        # split the space and do other space managment
+        x,y,layer = self.spaces.split_space(shape,space_idx)
+
+        # add shape to packed items (only used to output result)
         self.packed_items.add_shape(shape,x,y,layer)
+
+        # update item quantities
         self.item_quantities[shape.item_id] -= shape.q
         self.total_number_of_items -= shape.q
 
@@ -147,7 +151,7 @@ class Packer():
                 )
                 ax.text(x+shape.w/2, y+shape.h/2, f"{shape.item_id}", ha='center', va='center', fontsize=20)
 
-            for space in self.open_spaces.open_spaces:
+            for space in self.spaces.open_spaces:
                 if space.layer == layer_index:
                     ax.add_patch(
                         Rectangle(

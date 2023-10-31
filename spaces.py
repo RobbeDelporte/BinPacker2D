@@ -1,15 +1,17 @@
 from consts import BIN_WIDTH, BIN_HEIGHT
 import numpy as np
 
-class Spaces():
-    def __init__(self, n_layers):
 
+    
+    
+class SimpleSpaces():
+
+    def __init__(self, n_layers):
         self.width = BIN_WIDTH
         self.height = BIN_HEIGHT
 
         self.open_spaces = [OpenSpace(0,0,self.width,self.height,i) for i in range(n_layers)]
         self.number_of_layers = n_layers
-
 
     def split_space(self,shape,space_index):
         selected_space = self.open_spaces.pop(space_index)
@@ -22,15 +24,6 @@ class Spaces():
         self.add_space(space2)
 
         return selected_space.x, selected_space.y, selected_space.layer
-
-
-    def add_new_layer(self):
-        new_space = OpenSpace(0,0,self.width,self.height,self.number_of_layers)
-        self.number_of_layers += 1
-
-        self.open_spaces.append(new_space)
-        return len(self.open_spaces)
-    
 
     def add_space(self,new_space):
         if not new_space.is_valid():
@@ -66,17 +59,26 @@ class Spaces():
         self.open_spaces.append(new_space)
         return True
     
+    def add_new_layer(self):
+        new_space = OpenSpace(0,0,self.width,self.height,self.number_of_layers)
+        self.number_of_layers += 1
 
+        self.add_space(new_space)
+        return len(self.open_spaces)
 
+    def __str__(self):
+        return self.open_spaces.__str__()
+
+    
 class OpenSpaces():
-    def __init__(self, n_layers):
 
+    def __init__(self, n_layers):
         self.width = BIN_WIDTH
         self.height = BIN_HEIGHT
 
         self.open_spaces = [OpenSpace(0,0,self.width,self.height,i) for i in range(n_layers)]
         self.number_of_layers = n_layers
-
+    
     def split_space(self,shape,space_index):
         selected_space = self.open_spaces.pop(space_index)
         assert selected_space.w >= shape.w and selected_space.h >= shape.h
@@ -115,14 +117,7 @@ class OpenSpaces():
         for new_space in new_spaces:
             self.add_space(new_space)
 
-        return selected_space.x, selected_space.y, selected_space.layer
-
-    def add_new_layer(self):
-        new_space = OpenSpace(0,0,self.width,self.height,self.number_of_layers)
-        self.number_of_layers += 1
-
-        self.open_spaces.append(new_space)
-        return len(self.open_spaces)
+        return selected_space.x, selected_space.y, selected_space.layer 
 
     def add_space(self,new_space):
         if not new_space.is_valid():
@@ -152,8 +147,19 @@ class OpenSpaces():
         self.open_spaces.append(new_space)
         return True
     
+    def filter_spaces(self,min_width,min_height):
+        self.open_spaces = [space for space in self.open_spaces if space.w >= min_width and space.h >= min_height]
+    
+    def add_new_layer(self):
+        new_space = OpenSpace(0,0,self.width,self.height,self.number_of_layers)
+        self.number_of_layers += 1
+
+        self.add_space(new_space)
+        return len(self.open_spaces)
+
     def __str__(self):
         return self.open_spaces.__str__()
+    
 
     
 class OpenSpace():
