@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import colorsys
-from spaces import SimpleSpaces, OpenSpaces
+from spaces import OpenSpaces
 from shapes import Shapes
 from consts import *
 
@@ -24,28 +24,40 @@ class Packer():
         self.packed_items = PackedItems()
         self.shapes = Shapes(order)
 
-
-    def pack(self):
-    
+    def pack(self):    
         while self.total_number_of_items > 0:
 
             #fine a space, shape pair with the highest score
             space_idx, shape_idx = self.find_space_shape()
-            #pack the shape into the space
-            self.pack_shape(shape_idx,space_idx)
 
-            min_width = np.min(self.shapes.shapes_array[:,0])
-            min_height = np.min(self.shapes.shapes_array[:,1])
-            self.spaces.filter_spaces(min_width,min_height)
+            shape = self.shapes.shapes[shape_idx]
 
+            corner_fragmentation = self.spaces.best_corner(shape,space_idx)
+            best_corner = np.argmin(corner_fragmentation)
+            # split the space and do other space managment
+            x,y,layer = self.spaces.split_space(shape,space_idx,corner=best_corner)
 
+            # add shape to packed items (only used to output result)
+            self.packed_items.add_shape(shape,x,y,layer)
+
+            # update item quantities
+            self.item_quantities[shape.item_id] -= shape.q
+            self.total_number_of_items -= shape.q
+
+            valid_shapes = self.shapes.shapes_array[self.shapes.shapes_array[:,2] <= self.item_quantities[self.shapes.shapes_array[:,3]]]
+            if len(valid_shapes) > 0:
+                min_width = np.min(valid_shapes[:,0])
+                min_height = np.min(valid_shapes[:,1])
+                self.spaces.filter_spaces(min_width,min_height)
+
+        
     def find_space_shape(self):
         shapes = self.shapes.shapes_array
         w = shapes[:,0]
         h = shapes[:,1]
         spaces = self.spaces.open_spaces
 
-        # no open spaces, add new layer then recursion
+        # no open spaces, add new layer
         if len(spaces) == 0:
             self.spaces.add_new_layer()
             spaces = self.spaces.open_spaces
@@ -111,24 +123,6 @@ class Packer():
     
         return found_space, found_shape
     
-
-    def pack_shape(self,shape_idx,space_idx):
-        shape = self.shapes.shapes[shape_idx]
-
-
-        corner_fragmentation = self.spaces.best_corner(shape,space_idx)
-        best_corner = np.argmin(corner_fragmentation)
-        # print(shape.item_id, shape.q,corner_fragmentation, best_corner)
-        # split the space and do other space managment
-        x,y,layer = self.spaces.split_space(shape,space_idx,corner=best_corner)
-
-        # add shape to packed items (only used to output result)
-        self.packed_items.add_shape(shape,x,y,layer)
-
-        # update item quantities
-        self.item_quantities[shape.item_id] -= shape.q
-        self.total_number_of_items -= shape.q
-
 
     def visualise(self):
         for layer_index, layer in self.packed_items.layers.items():
