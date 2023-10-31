@@ -32,12 +32,6 @@ class Shapes():
         self.shapes_array = np.array(shapes_array)
 
 
-    def generate_shapes_super(self,order):
-        assert np.all(order["L"] >= order["W"])
-        all_dimensions = order[["L","W"]].to_numpy()
-        print(all_dimensions)
-        print(np.unique(all_dimensions,axis=0))
-
 
 class Shape():
     __slots__ = ['w', 'h', 'q', 'item_id', 'item_width', 'item_height']

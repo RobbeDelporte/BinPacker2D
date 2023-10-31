@@ -111,11 +111,16 @@ class Packer():
     def pack_shape(self,shape_idx,space_idx):
         shape = self.shapes.shapes[shape_idx]
 
+
+        corner_fragmentation = self.spaces.best_corner(shape,space_idx)
+        print(shape.item_id, shape.q, corner_fragmentation)
+
         # split the space and do other space managment
-        x,y,layer,fr = self.spaces.split_space(shape,space_idx)
+        x,y,layer = self.spaces.split_space(shape,space_idx)
+
 
         # add shape to packed items (only used to output result)
-        self.packed_items.add_shape(shape,x,y,layer,fr)
+        self.packed_items.add_shape(shape,x,y,layer,corner_fragmentation)
 
         # update item quantities
         self.item_quantities[shape.item_id] -= shape.q
@@ -126,7 +131,7 @@ class Packer():
         for layer_index, layer in self.packed_items.layers.items():
             fig = plt.figure()
             ax = fig.add_subplot(111, aspect='equal')
-            for x,y,shape in layer:
+            for x,y,fr,shape in layer:
                 plt.axis([0,BIN_WIDTH,0,BIN_HEIGHT])
                 width_q = shape.w / shape.item_width
                 for i in range(shape.q):
@@ -174,11 +179,11 @@ class PackedItems():
     def __init__(self):
         self.layers = {}
 
-    def add_shape(self,shape,x,y,layer):
+    def add_shape(self,shape,x,y,layer,fr):
         # print(f"packing {shape} at {x},{y} in layer {layer}")
         if layer not in self.layers:
             self.layers[layer] = []
-        self.layers[layer].append([x,y,shape])
+        self.layers[layer].append([x,y,fr,shape])
 
 
 
