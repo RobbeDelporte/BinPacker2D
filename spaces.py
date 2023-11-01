@@ -37,7 +37,7 @@ class OpenSpaces():
                 if w_overlap <= 0 or h_overlap <= 0:
                     continue
 
-                fragmentation_rate += (w_overlap*h_overlap)/(space.w*space.h)
+                fragmentation_rate += (w_overlap*h_overlap)
 
 
             corner_fragmentation[i] = fragmentation_rate
