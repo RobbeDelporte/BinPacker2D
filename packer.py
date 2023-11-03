@@ -34,7 +34,7 @@ class Packer():
 
             corner_fragmentation = self.spaces.best_corner(shape,space_idx)
             best_corner = np.argmin(corner_fragmentation)
-            # split the space and do other space managment
+
             x,y,layer = self.spaces.split_space(shape,space_idx,corner=best_corner)
 
             # add shape to packed items (only used to output result)
@@ -117,7 +117,7 @@ class Packer():
             self.spaces.add_new_layer()
             return self.find_space_shape()
         
-        found_space, found_shape = np.argwhere(scores == max_score)[-1]
+        found_space, found_shape = np.argwhere(scores == max_score)[0]
 
         # print(max_score, spaces[found_space], shapes[found_shape])
     

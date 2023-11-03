@@ -43,7 +43,37 @@ class OpenSpaces():
             corner_fragmentation[i] = fragmentation_rate
 
         return corner_fragmentation
+    
 
+    def best_offset(self,shape,space_index):
+        selected_space = self.open_spaces[space_index]
+        assert selected_space.w >= shape.w and selected_space.h >= shape.h
+
+        offset_fragmentation = np.zeros((selected_space.w-shape.w+1,selected_space.h-shape.h+1))
+
+        for x_offset in range(0,selected_space.w-shape.w+1):
+            for y_offset in range(0,selected_space.h-shape.h+1):
+                fragmentation_rate = 0
+                x = selected_space.x+x_offset
+                y = selected_space.y+y_offset
+
+                for space_idx, space in enumerate(self.open_spaces):
+                    if space.layer != selected_space.layer:
+                        continue
+
+                    x_overlap = max(x,space.x)
+                    y_overlap = max(y,space.y)
+                    w_overlap = min(x+shape.w,space.x+space.w) - x_overlap
+                    h_overlap = min(y+shape.h,space.y+space.h) - y_overlap
+
+                    if w_overlap <= 0 or h_overlap <= 0:
+                        continue
+
+                    fragmentation_rate += (w_overlap*h_overlap)
+
+                offset_fragmentation[x_offset,y_offset] = fragmentation_rate
+
+        return offset_fragmentation 
 
 
     def split_space(self,shape,space_index,corner=0):
@@ -88,6 +118,47 @@ class OpenSpaces():
             self.add_space(new_space)
 
         return x, y, selected_space.layer
+    
+    
+    def split_space_offset(self,shape,space_index,x_offset=0,y_offset=0):
+        selected_space = self.open_spaces[space_index]
+        assert selected_space.w >= shape.w and selected_space.h >= shape.h
+
+        x = selected_space.x+x_offset
+        y = selected_space.y+y_offset
+
+        new_spaces = []
+        for space_idx, space in enumerate(self.open_spaces):
+            if space.layer != selected_space.layer:
+                new_spaces.append(space)
+                continue
+
+            x_overlap = max(x,space.x)
+            y_overlap = max(y,space.y)
+            w_overlap = min(x+shape.w,space.x+space.w) - x_overlap
+            h_overlap = min(y+shape.h,space.y+space.h) - y_overlap
+
+            if w_overlap <= 0 or h_overlap <= 0:
+                new_spaces.append(space)
+                continue
+
+            # space has overlap with shape, needs to be split
+            space1 = OpenSpace(space.x,space.y,x_overlap-space.x,space.h,space.layer)
+            space2 = OpenSpace(space.x,space.y,space.w,y_overlap-space.y,space.layer)
+            space3 = OpenSpace(space.x,y_overlap+h_overlap,space.w,(space.y+space.h)-(y_overlap+h_overlap),space.layer)
+            space4 = OpenSpace(x_overlap+w_overlap,space.y,(space.x+space.w)-(x_overlap+w_overlap),space.h,space.layer)
+            
+            new_spaces.append(space1)
+            new_spaces.append(space2)
+            new_spaces.append(space3)
+            new_spaces.append(space4)
+
+        self.open_spaces = []
+        for new_space in new_spaces:
+            self.add_space(new_space)
+
+        return x, y, selected_space.layer
+
 
     def add_space(self,new_space):
         if not new_space.is_valid():
