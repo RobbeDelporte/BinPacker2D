@@ -10,7 +10,7 @@ class Shapes():
         self.generate_shapes(order)
 
     def generate_shapes(self,order):
-
+        assert np.all(order["L"] >= order["W"])
         shapes_array = []
         for _, product in order.iterrows():
             _, product_id, quantity, w, h = product
